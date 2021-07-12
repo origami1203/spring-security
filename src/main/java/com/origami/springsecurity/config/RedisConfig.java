@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -39,9 +40,14 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+
+    @Bean
+    public StringRedisTemplate stringRedisTemplate() {
+        return new StringRedisTemplate(factory);
+    }
     
     @Bean
-    public HashOperations<String, String, Object> hashOperations(RedisConnectionFactory factory) {
-        return redisTemplate().opsForHash();
+    public HashOperations<String, String, String> hashOperations(RedisConnectionFactory factory) {
+        return stringRedisTemplate().opsForHash();
     }
 }

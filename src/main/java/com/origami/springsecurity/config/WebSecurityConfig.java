@@ -30,7 +30,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    
+
     private final UserDetailsService userDetailsService;
     private final AccessDeniedHandler accessDeniedHandler;
     private final LogoutSuccessHandler logoutSuccessHandler;
@@ -39,15 +39,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final AuthenticationFailureHandler authenticationFailureHandler;
     private final FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource;
     private final AccessDecisionManager accessDecisionManager;
-    
+
     public WebSecurityConfig(UserDetailsService userDetailsService,
-                                AccessDeniedHandler accessDeniedHandler,
-                                LogoutSuccessHandler logoutSuccessHandler,
-                                AuthenticationEntryPoint authenticationEntryPoint,
-                                AuthenticationSuccessHandler authenticationSuccessHandler,
-                                AuthenticationFailureHandler authenticationFailureHandler,
-                                FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource,
-                                AccessDecisionManager accessDecisionManager) {
+                             AccessDeniedHandler accessDeniedHandler,
+                             LogoutSuccessHandler logoutSuccessHandler,
+                             AuthenticationEntryPoint authenticationEntryPoint,
+                             AuthenticationSuccessHandler authenticationSuccessHandler,
+                             AuthenticationFailureHandler authenticationFailureHandler,
+                             FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource,
+                             AccessDecisionManager accessDecisionManager) {
         this.userDetailsService = userDetailsService;
         this.accessDeniedHandler = accessDeniedHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
@@ -57,61 +57,63 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.filterInvocationSecurityMetadataSource = filterInvocationSecurityMetadataSource;
         this.accessDecisionManager = accessDecisionManager;
     }
-    
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).disable()
-            .csrf().disable()
-            .authorizeRequests()
-            .antMatchers("/login", "/logout", "/register")
-            .permitAll()
-            .anyRequest()
-            .authenticated()
-            .and()
-            .formLogin()
-            .usernameParameter("username")
-            .passwordParameter("password")
-            .successHandler(authenticationSuccessHandler)
-            .failureHandler(authenticationFailureHandler)
-            .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-                @Override
-                public <O extends FilterSecurityInterceptor> O postProcess(O object) {
-                    object.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
-                    object.setAccessDecisionManager(accessDecisionManager);
-                    return object;
-                }
-            })
-            .and()
-            .logout()
-            .logoutSuccessHandler(logoutSuccessHandler)
-            .and()
-            .exceptionHandling()
-            .accessDeniedHandler(accessDeniedHandler)
-            .authenticationEntryPoint(authenticationEntryPoint)
-            .and()
-            .addFilterBefore(new TokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        
+        // 禁用session,.disable()方式禁用,postman会使用cookie和session
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/login", "/logout", "/register")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .formLogin()
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler)
+                .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+                    @Override
+                    public <O extends FilterSecurityInterceptor> O postProcess(O object) {
+                        object.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
+                        object.setAccessDecisionManager(accessDecisionManager);
+                        return object;
+                    }
+                })
+                .and()
+                .logout()
+                .logoutSuccessHandler(logoutSuccessHandler)
+                .and()
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler)
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .and()
+                // 不要new filter(),使用ioc容器
+                .addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
     }
-    
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
     }
-    
+
     @Bean
     public FilterRegistrationBean<TokenFilter> filterRegistrationBean() {
         FilterRegistrationBean<TokenFilter> filter = new FilterRegistrationBean<>();
         filter.setFilter(tokenFilter());
         filter.setOrder(1);
-        
         return filter;
     }
-    
+
     @Bean
     public TokenFilter tokenFilter() {
         return new TokenFilter();
