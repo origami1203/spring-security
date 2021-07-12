@@ -51,7 +51,7 @@ public class LoginUser extends SysUser implements UserDetails, CredentialsContai
     
     @Override
     public boolean isEnabled() {
-        return getEnabled() > 0;
+        return getEnabled();
     }
     
     // 擦除敏感信息

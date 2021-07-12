@@ -35,7 +35,7 @@ public abstract class BaseDomain {
     
     @TableField(value = "deleted")
     @TableLogic
-    protected Byte deleted;
+    protected Boolean deleted;
     
     @Version
     @TableField(value = "version")

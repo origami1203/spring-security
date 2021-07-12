@@ -30,7 +30,7 @@ public class SysUserController {
     
     @PostMapping("")
     public void addUser(SysUser user) {
-        user.setEnabled((byte) 1).setPassword(passwordEncoder.encode(user.getPassword())).setDeleted((byte) 0);
+        user.setEnabled(true).setPassword(passwordEncoder.encode(user.getPassword())).setDeleted(false);
         sysUserService.save(user);
     }
     

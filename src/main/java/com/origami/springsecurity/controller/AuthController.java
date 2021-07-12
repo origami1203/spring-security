@@ -29,7 +29,7 @@ public class AuthController {
     
     @PostMapping("/register")
     public Resp<Void> register(@RequestBody SysUser user) {
-        user.setEnabled((byte) 1).setDeleted((byte) 0);
+        user.setEnabled(true).setDeleted(false);
     
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         

@@ -35,6 +35,6 @@ public class SysUser extends BaseDomain implements Serializable {
     @TableField
     private Short gender;
     
-    private Byte enabled;
+    private Boolean enabled;
     
 }
