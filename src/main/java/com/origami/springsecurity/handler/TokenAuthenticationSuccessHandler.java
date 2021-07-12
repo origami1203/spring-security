@@ -1,17 +1,14 @@
 package com.origami.springsecurity.handler;
 
 import cn.hutool.core.lang.UUID;
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.origami.springsecurity.domain.LoginUser;
 import com.origami.springsecurity.domain.entity.Token;
 import com.origami.springsecurity.service.TokenService;
 import com.origami.springsecurity.utils.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -38,7 +35,7 @@ public class TokenAuthenticationSuccessHandler implements AuthenticationSuccessH
     private Long expireTime;
     
     @Resource
-    private HashOperations<String, String, Object> hashOperations;
+    private HashOperations<String, String, String> hashOperations;
     
     @Resource
     private TokenService tokenService;
@@ -52,11 +49,11 @@ public class TokenAuthenticationSuccessHandler implements AuthenticationSuccessH
     
         Token token = new Token();
         token.setAuthentication(uuid);
-        token.setAuthentication(JSONObject.toJSONString(loginUser));
+        token.setAuthentication(new ObjectMapper().writeValueAsString(loginUser));
         token.setValue(uuid);
         token.setExpireTime(expireTime);
     
-        hashOperations.put(REDIS_TOKEN_KEY,uuid,loginUser);
+        hashOperations.put(REDIS_TOKEN_KEY,uuid,new ObjectMapper().writeValueAsString(loginUser));
         hashOperations.getOperations().expire(REDIS_TOKEN_KEY, expireTime, TimeUnit.SECONDS);
         tokenService.saveToken(token);
         
