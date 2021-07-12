@@ -5,6 +5,7 @@ import com.origami.springsecurity.domain.base.BaseDomain;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.Entity;
 import javax.sql.rowset.serial.SerialArray;
@@ -25,6 +26,7 @@ public class Token extends BaseDomain implements Serializable {
     
     private String authentication;
     
+    // 存储uuid
     private String value;
     
     /**
@@ -32,5 +34,6 @@ public class Token extends BaseDomain implements Serializable {
      */
     private Long loginTime;
     
+    @Value("${jwt.expireTime}")
     private Long expireTime;
 }

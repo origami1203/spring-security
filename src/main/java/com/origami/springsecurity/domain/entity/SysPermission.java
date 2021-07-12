@@ -22,8 +22,6 @@ import java.io.Serializable;
 public class SysPermission extends BaseDomain implements Serializable {
     private static final long serialVersionUID = -5667080586015782190L;
     
-    private Long roleId;
-    
     private Long parentId;
     
     private String name;

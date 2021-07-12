@@ -9,14 +9,19 @@ import com.origami.springsecurity.utils.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author origami1203
@@ -27,7 +32,15 @@ import java.io.IOException;
 @Component
 public class TokenAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     
-    @Autowired
+    public static final String REDIS_TOKEN_KEY = "token";
+    
+    @Value("${jwt.expireTime}")
+    private Long expireTime;
+    
+    @Resource
+    private HashOperations<String, String, Object> hashOperations;
+    
+    @Resource
     private TokenService tokenService;
     
     @Override
@@ -39,8 +52,12 @@ public class TokenAuthenticationSuccessHandler implements AuthenticationSuccessH
     
         Token token = new Token();
         token.setAuthentication(uuid);
-        token.setValue(JSONObject.toJSONString(loginUser));
+        token.setAuthentication(JSONObject.toJSONString(loginUser));
+        token.setValue(uuid);
+        token.setExpireTime(expireTime);
     
+        hashOperations.put(REDIS_TOKEN_KEY,uuid,loginUser);
+        hashOperations.getOperations().expire(REDIS_TOKEN_KEY, expireTime, TimeUnit.SECONDS);
         tokenService.saveToken(token);
         
         log.info("用户:[{}]登录成功,ip地址:[{}],访问路径:[{}]",loginUser.getUsername(),request.getRemoteHost(),request.getRequestURL());

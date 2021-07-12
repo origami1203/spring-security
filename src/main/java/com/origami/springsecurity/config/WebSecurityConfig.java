@@ -1,6 +1,7 @@
 package com.origami.springsecurity.config;
 
 import com.origami.springsecurity.filter.TokenFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -63,7 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.sessionManagement().disable()
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).disable()
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/login", "/logout", "/register")
@@ -99,5 +101,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
+    }
+    
+    @Bean
+    public FilterRegistrationBean<TokenFilter> filterRegistrationBean() {
+        FilterRegistrationBean<TokenFilter> filter = new FilterRegistrationBean<>();
+        filter.setFilter(tokenFilter());
+        filter.setOrder(1);
+        
+        return filter;
+    }
+    
+    @Bean
+    public TokenFilter tokenFilter() {
+        return new TokenFilter();
     }
 }

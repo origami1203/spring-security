@@ -1,12 +1,16 @@
 package com.origami.springsecurity.controller;
 
+import com.origami.springsecurity.common.Resp;
 import com.origami.springsecurity.domain.entity.SysUser;
 import com.origami.springsecurity.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
 
 /**
  * @author origami1203
@@ -18,16 +22,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class SysUserController {
     
-    @Autowired
+    @Resource
     private SysUserService sysUserService;
     
-    @Autowired
+    @Resource
     private BCryptPasswordEncoder passwordEncoder;
     
-    @PostMapping()
+    @PostMapping("")
     public void addUser(SysUser user) {
         user.setEnabled((byte) 1).setPassword(passwordEncoder.encode(user.getPassword())).setDeleted((byte) 0);
         sysUserService.save(user);
+    }
+    
+    @DeleteMapping("")
+    public Resp<Void> delete(Long id) {
+        sysUserService.removeById(id);
+        return Resp.ok();
     }
     
     

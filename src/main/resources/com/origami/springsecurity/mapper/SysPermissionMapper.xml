@@ -14,23 +14,23 @@
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="parentId" column="parent_id" jdbcType="BIGINT"/>
             <result property="permission" column="permission" jdbcType="VARCHAR"/>
-            <result property="roleId" column="role_id" jdbcType="BIGINT"/>
             <result property="type" column="type" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        sp.id,create_date,deleted,
+        id,create_date,deleted,
         update_date,version,url,
         name,parent_id,permission,
         type
     </sql>
 
     <select id="selectListByUserId" resultType="sysPermission">
-        select <include refid="Base_Column_List"/>
-        from sys_permission sp
-        join sys_role_permission srp on sp.id = srp.permission_id
-        join sys_user_role sur on srp.role_id = sur.role_id
-        where sur.user_id = #{userId}
+        SELECT sp.*
+        FROM sys_user su
+                 JOIN sys_user_role sur on su.id = sur.user_id
+                 JOIN sys_role_permission srp on sur.role_id = srp.role_id
+                 JOIN sys_permission sp ON srp.permission_id = sp.id
+        WHERE su.id = #{userId}
     </select>
 
     <select id="selectListByUsername" resultType="sysPermission">

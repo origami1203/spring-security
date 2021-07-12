@@ -24,7 +24,6 @@ public class MySQLTokenServiceImpl implements TokenService {
     @Autowired
     private final TokenMapper tokenMapper;
     
-    @Value("${token.expire.second}")
     private Long expireSecond;
     
     public MySQLTokenServiceImpl(TokenMapper tokenMapper) {

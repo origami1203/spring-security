@@ -1,7 +1,7 @@
 package com.origami.springsecurity.domain;
 
 import cn.hutool.core.util.StrUtil;
-import com.origami.springsecurity.domain.entity.SysRole;
+import com.origami.springsecurity.domain.entity.SysPermission;
 import com.origami.springsecurity.domain.entity.SysUser;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,14 +25,13 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 public class LoginUser extends SysUser implements UserDetails, CredentialsContainer {
     
-    private List<SysRole> roles;
+    private List<SysPermission> permissions;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                    .filter(role -> StrUtil.isNotBlank(role.getRoleName()))
-                    .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
-                    .collect(Collectors.toSet());
+        return permissions.stream()
+                          .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                          .collect(Collectors.toSet());
     }
     
     @Override

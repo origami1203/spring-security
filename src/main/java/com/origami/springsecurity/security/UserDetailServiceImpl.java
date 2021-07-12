@@ -26,11 +26,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
     
     private final SysUserService sysUserService;
     
-    private final SysRoleService sysRoleService;
+    private final SysPermissionService sysPermissionService;
     
-    public UserDetailServiceImpl(SysUserService sysUserService, SysRoleService sysRoleService) {
+    public UserDetailServiceImpl(SysUserService sysUserService, SysPermissionService sysPermissionService) {
         this.sysUserService = sysUserService;
-        this.sysRoleService = sysRoleService;
+        this.sysPermissionService = sysPermissionService;
     }
     
     @Override
@@ -44,9 +44,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
         
         LoginUser loginUser = BeanUtil.toBean(userByUsername, LoginUser.class);
     
-        List<SysRole> roles =
-                sysRoleService.listAllRoleNamesByUserId(userByUsername.getId());
-        
-        return loginUser.setRoles(roles);
+        List<SysPermission> permissions =
+                sysPermissionService.getPermissionListByUserId(userByUsername.getId());
+    
+    
+        return loginUser.setPermissions(permissions);
     }
 }

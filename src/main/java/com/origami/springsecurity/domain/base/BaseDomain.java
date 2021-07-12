@@ -7,9 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.ibatis.type.JdbcType;
 
-import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.util.Date;
@@ -17,7 +15,7 @@ import java.util.Date;
 /**
  * @author origami1203
  * @date 2021-5-2 17:08
- * @description domain的基类,
+ * @description domain的基类
  */
 
 
